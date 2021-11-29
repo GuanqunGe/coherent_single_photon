@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+
+<!-- Production Project -->
+
+<!DOCTYPE project [
+<!ENTITY user_id "gge">
+<!ENTITY number_of_jobs "511">
+<!ENTITY number_of_events "23048"> 
+<!ENTITY name "Coherent_SP_v1.1_23k">
+<!ENTITY release "v08_00_00_43"> 
+<!ENTITY file_type "mc">
+<!ENTITY run_type "physics">
+<!ENTITY tag "coherent_sp_overlay">
+<!ENTITY prod_mode "test"> 
+]>
+
+<project name="&name;">
+
+  <!-- Project size -->
+  <numevents>&number_of_events;</numevents>
+
+  <!-- Operating System -->
+  <os>SL7</os>
+
+  <!-- Batch resources -->
+  <resource>OPPORTUNISTIC,DEDICATED</resource>
+  
+  <!-- Project Version -->
+  <version>&prod_mode;_&release;</version>
+
+  <!-- Larsoft information -->
+  <larsoft>
+    <tag>&release;</tag>
+    <qual>e17:prof</qual>
+  </larsoft>
+
+  <check>0</check>
+  <copy>0</copy>
+
+   <fcldir>/uboone/app/users/gge/CoherentGamma/fhicls</fcldir>
+
+  <!-- Project stages -->
+
+  <!-- First stage, turn HEPevt into artroot, and add overlays -->
+  <stage name="genartroot">
+    <initsource>/pnfs/uboone/resilient/users/gge/work/coherent_Sept2021/scripts/unzip_test_script.sh</initsource>
+    <inputdef>prod_extunbiased_swizzle_inclusive_v3_goodruns_mcc9_run1_high_lifetime_overlay_eLee_low</inputdef>
+    <fcl>CoherentSimulation_AddOverlay_batch_LOCAL.fcl</fcl>
+    <outdir>/pnfs/uboone/scratch/users/&user_id;/&tag;/&release;/genartroot/&name;</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&user_id;/&tag;/&release;/genartroot/&name;</logdir>
+    <bookdir>/uboone/data/users/&user_id;/book/&tag;/&release;/genartroot/&name;</bookdir>
+    <workdir>/pnfs/uboone/resilient/users/&user_id;/work/&tag;/&release;/genartroot/&name;</workdir>
+    <numjobs>&number_of_jobs;</numjobs>
+    <schema>gsiftp</schema>
+    <maxfilesperjob>1</maxfilesperjob>
+    <numevents>50</numevents>
+    <disk>35GB</disk>
+    <memory>2000</memory> <!-- 2k-->
+    <!--<prestagefraction>0.99</prestagefraction>-->
+    <jobsub> --expected-lifetime=long --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_opensciencegrid_org==true)' -f /pnfs/uboone/resilient/users/gge/work/coherent_Sept2021/HEPevtfile_list/numu_uBooNE_Flux_500k_50evts.tar -f /pnfs/uboone/resilient/users/gge/work/coherent_Sept2021/fhicls/CoherentSimulation_AddOverlay_batch_TEMPLATE.fcl</jobsub>
+    <jobsub_start>   --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_opensciencegrid_org==true)' -f /pnfs/uboone/resilient/users/gge/work/coherent_Sept2021/HEPevtfile_list/numu_uBooNE_Flux_500k_50evts.tar -f /pnfs/uboone/resilient/users/gge/work/coherent_Sept2021/fhicls/CoherentSimulation_AddOverlay_batch_TEMPLATE.fcl </jobsub_start>
+  </stage>  
+
+  
+  <!-- Second stage, do a full-chain simulation to the artroot output from previous stage -->
+  <stage name="genall">
+    <fcl>wirecell_g4_uboone.fcl</fcl>
+    <fcl>wirecell_detsim_overlay_uboone.fcl</fcl>
+    <fcl>standard_overlay_uboone.fcl</fcl>
+    <fcl>reco_uboone_mcc9_8_driver_overlay_stage1a.fcl</fcl>
+    <fcl>reco_uboone_mcc9_8_driver_overlay_stage1b.fcl</fcl>
+    <fcl>reco_uboone_mcc9_8_driver_overlay_stage1c.fcl</fcl>
+    <fcl>reco_uboone_mcc9_8_driver_overlay_stage2.fcl</fcl>
+    <outdir>/pnfs/uboone/scratch/users/&user_id;/&tag;/&release;/genall/&name;</outdir>
+    <logdir>/pnfs/uboone/scratch/users/&user_id;/&tag;/&release;/genall/&name;</logdir>
+    <bookdir>/uboone/data/users/&user_id;/book/&tag;/&release;/genall/&name;</bookdir>
+    <workdir>/pnfs/uboone/resilient/users/&user_id;/work/&tag;/&release;/genall/&name;</workdir>
+    <numjobs>&number_of_jobs;</numjobs>
+    <schema>gsiftp</schema>
+    <maxfilesperjob>1</maxfilesperjob>
+    <disk>25GB</disk>
+    <memory>4000</memory> <!-- 6k-->
+    <jobsub> --expected-lifetime=20h --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_opensciencegrid_org==true)' </jobsub>
+    <jobsub_start>   --append_condor_requirements='(TARGET.HAS_CVMFS_uboone_opensciencegrid_org==true)'</jobsub_start>
+  </stage>  
+ 
+  <!-- file type -->
+  <filetype>&file_type;</filetype>
+
+  <!-- run type -->
+  <runtype>&run_type;</runtype>
+
+</project>
